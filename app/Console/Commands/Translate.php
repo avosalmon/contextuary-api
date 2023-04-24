@@ -81,7 +81,7 @@ class Translate extends Command
             ['role' => 'user', 'content' => $sentence],
         ];
 
-        $this->jsonRequest($messages);
+        $this->requestJson($messages);
     }
 
     private function streamedRequest(array $messages)
@@ -111,7 +111,7 @@ class Translate extends Command
         $this->newLine();
     }
 
-    private function jsonRequest(array $messages)
+    private function requestJson(array $messages)
     {
         $response = OpenAI::chat()->create([
             'model' => 'gpt-3.5-turbo',

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
+use App\Enums\Tone;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class TranslationRequest extends FormRequest
 {
@@ -25,10 +27,11 @@ class TranslationRequest extends FormRequest
     {
         return [
             'word' => ['required', 'string'],
-            'sentence' => ['required', 'string'],
-            'from_language' => ['required', 'string'],
-            'to_language' => ['required', 'string'],
-            'mode' => ['required', 'string'],
+            'context' => ['string'],
+            'input_language' => ['required', 'string'],
+            'output_language' => ['required', 'string'],
+            'tone' => [Rule::enum(Tone::class)],
+            'audience' => ['string'],
         ];
     }
 }

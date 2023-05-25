@@ -6,6 +6,7 @@ namespace App;
 
 use App\Enums\Role;
 use App\Enums\SystemUserName;
+use Illuminate\Contracts\Support\Arrayable;
 use InvalidArgumentException;
 
 /**
@@ -13,7 +14,7 @@ use InvalidArgumentException;
  * The `name` property is optional and only used for few-shot prompting with the `system` role.
  * This helps the API to understand that the example messages are not part of a real conversation, and shouldn't be referred back to by the model.
  */
-class ChatMessage
+class ChatMessage implements Arrayable
 {
     public function __construct(
         protected Role $role,

@@ -30,7 +30,7 @@ class TranslationRequest extends FormRequest
             'context' => ['string'],
             'input_language' => ['required', 'string'],
             'output_language' => ['required', 'string'],
-            'tone' => [Rule::enum(Tone::class)],
+            'tone' => ['required', Rule::enum(Tone::class)],
             'audience' => ['string'],
         ];
     }

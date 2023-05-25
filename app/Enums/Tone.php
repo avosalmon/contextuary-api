@@ -7,6 +7,6 @@ namespace App\Enums;
 enum Tone: string
 {
     case Formal = 'formal';
-    case Informal = 'informal';
+    case Casual = 'casual';
     case Neutral = 'neutral';
 }

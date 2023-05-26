@@ -38,9 +38,7 @@ class TranslationController extends Controller
         $json = $response->choices[0]->message->content;
         $array = json_decode($json, associative: true);
 
-        // Format response
-
-        // Return response
+        // Return `Translation` JSON resource
         return response()->json([
             'data' => $array,
         ]);

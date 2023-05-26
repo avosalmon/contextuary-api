@@ -32,7 +32,7 @@ class TranslationController extends Controller
         // Call OpenAI API
         $response = OpenAI::chat()->create([
             'model' => 'gpt-4',
-            'messages' => $messages,
+            'messages' => $messages->toArray(),
         ]);
 
         $json = $response->choices[0]->message->content;

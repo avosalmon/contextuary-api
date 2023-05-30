@@ -33,6 +33,8 @@ class TranslationController extends Controller
         $response = OpenAI::chat()->create([
             'model' => 'gpt-4',
             'messages' => $messages->toArray(),
+            'temperature' => 0,
+            // TODO: 'max_tokens' => 64,
         ]);
 
         $json = $response->choices[0]->message->content;
@@ -45,6 +47,8 @@ class TranslationController extends Controller
     }
 
     /**
+     * Example messages for "few-shot" prompting.
+     *
      * @return Collection<ChatMessage>
      */
     private function exampleMessages(): Collection
@@ -52,11 +56,11 @@ class TranslationController extends Controller
         return collect([
             new ChatMessage(
                 Role::System,
-                'You are an English-Japanese dictionary that provides the meaning of a word in the context of a sentence where the word is used.'
+                'Act as a native speaker of both Japanese and English. Your task is to translate a word/phrase/sentence based on the context, tone, and audience.'
             ),
             new ChatMessage(
                 Role::System,
-                "Please translate 'example phrase' in the following context.",
+                "Please translate '次のスプリントに回す' into English in the following context.",
                 SystemUserName::ExampleUser
             ),
             new ChatMessage(

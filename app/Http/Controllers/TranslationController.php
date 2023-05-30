@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\ChatMessage;
+use App\DataObjects\ChatMessage;
 use App\Enums\Role;
 use App\Enums\SystemUserName;
 use App\Enums\Tone;

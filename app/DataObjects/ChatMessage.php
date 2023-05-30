@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\DataObjects;
 
 use App\Enums\Role;
 use App\Enums\SystemUserName;

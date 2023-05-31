@@ -5,32 +5,32 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use OpenAI\Laravel\Facades\OpenAI;
 
-class Translate extends Command
+class Lookup extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'translate';
+    protected $signature = 'lookup';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Translate a word in the context of a sentence.';
+    protected $description = 'Look up a word/phrase in the given context.';
 
     /**
      * Execute the console command.
      */
     public function handle(): void
     {
-        $word = $this->ask('What word would you like to translate?');
-        $sentence = $this->ask('What sentence would you like to translate the word in?');
+        $word = $this->ask('What word/phrase would you like to look up?');
+        $context = $this->ask('What is the context where the word/phrase is used?');
 
         $exampleWord = 'unprecedented';
-        $exampleSentence = 'Amid an unprecedented global situation that is graver than what Singapore has experienced for a very long time, it is important that the nation stays united.';
+        $exampleContext = 'Amid an unprecedented global situation that is graver than what Singapore has experienced for a very long time, it is important that the nation stays united.';
         $exampleOutput = 'この文脈での「unprecedented」の意味は、「これまでにない、前例のない、まったく新しくて珍しい」です。この文章は、シンガポールがこれまでにない状況に直面しており、国が団結し、他の国々のように分断されないようにすることが重要であることを伝えています。';
         // $exampleOutput = '{
         //     "translated_explanation": "この文脈での「unprecedented」の意味は、「これまでにない、前例のない、まったく新しくて珍しい」です。この文章は、シンガポールがこれまでにない状況に直面しており、国が団結し、他の国々のように分断されないようにすることが重要であることを伝えています。",
@@ -41,7 +41,7 @@ class Translate extends Command
         // }';
 
         $messages = [
-            ['role' => 'system', 'content' => 'You are an English-Japanese dictionary that provides the meaning of a word in the context of a sentence where the word is used.'],
+            ['role' => 'system', 'content' => 'You are an English-Japanese dictionary that provides the meaning of a word/phrase in the context where the it is used.'],
             // ['role' => 'user', 'content' => 'The response should be a JSON object containing the following fields. Make sure to return only a JSON object without any text so that I can programatically process it.'],
             // ['role' => 'user', 'content' => '
             //     explanation: Explanation of the word(s) in the context of the sentence
@@ -50,11 +50,11 @@ class Translate extends Command
             //     phonetic_symbol: the phonetic symbol of the word(s)
             //     example_sentence: an example sentence in English using the input word(s) in a similar context to the input sentence
             // '],
-            ['role' => 'user', 'content' => "What is the meaning of '{$exampleWord}' in the context of the following sentence?"],
-            ['role' => 'user', 'content' => $exampleSentence],
+            ['role' => 'user', 'content' => "What is the meaning of '{$exampleWord}' in the following context?"],
+            ['role' => 'user', 'content' => $exampleContext],
             ['role' => 'assistant', 'content' => $exampleOutput],
-            ['role' => 'user', 'content' => "What is the meaning of '{$word}' in the context of the following sentence? The output should be in Japanese"],
-            ['role' => 'user', 'content' => $sentence],
+            ['role' => 'user', 'content' => "What is the meaning of '{$word}' in the following context? The output should be in Japanese"],
+            ['role' => 'user', 'content' => $context],
         ];
 
         $this->streamedRequest($messages);
@@ -63,22 +63,22 @@ class Translate extends Command
         $this->comment('Retrieving other information...');
 
         $messages = [
-            ['role' => 'system', 'content' => 'You are an English-Japanese dictionary that provides the meaning of a word in the context of a sentence where the word is used.'],
+            ['role' => 'system', 'content' => 'You are an English-Japanese dictionary that provides the meaning of a word/phrase in the context where the it is used.'],
             ['role' => 'user', 'content' => 'The response should be a JSON object containing the following fields. Make sure to return only a JSON object without any text so that I can programatically process it.'],
             ['role' => 'user', 'content' => '
                 part_of_speech: the part of the speech of the word(s) in Japanese
                 phonetic_symbol: the phonetic symbol of the word(s)
                 example_sentence: an example sentence in English using the input word(s) in a similar context to the input sentence
             '],
-            ['role' => 'user', 'content' => "What is the meaning of '{$exampleWord}' in the context of the following sentence?"],
-            ['role' => 'user', 'content' => $exampleSentence],
+            ['role' => 'user', 'content' => "What is the meaning of '{$exampleWord}' in the following context?"],
+            ['role' => 'user', 'content' => $exampleContext],
             ['role' => 'assistant', 'content' => '{
                 "part_of_speech": "形容詞",
                 "phonetic_symbol": "[ˌʌnˈpresɪˌdentɪd]",
                 "example_sentence": "The company faced unprecedented challenges during the economic downturn."
             }'],
-            ['role' => 'user', 'content' => "What is the meaning of '{$word}' in the context of the following sentence?"],
-            ['role' => 'user', 'content' => $sentence],
+            ['role' => 'user', 'content' => "What is the meaning of '{$word}' in the following context?"],
+            ['role' => 'user', 'content' => $context],
         ];
 
         $this->requestJson($messages);

@@ -89,6 +89,7 @@ class Lookup extends Command
         $stream = OpenAI::chat()->createStreamed([
             'model' => 'gpt-3.5-turbo',
             'messages' => $messages,
+            'temperature' => 0,
         ]);
 
         foreach ($stream as $response) {
@@ -104,6 +105,7 @@ class Lookup extends Command
         $response = OpenAI::chat()->create([
             'model' => 'gpt-3.5-turbo',
             'messages' => $messages,
+            'temperature' => 0,
         ]);
 
         $content = $response->choices[0]->message->content;
@@ -116,6 +118,7 @@ class Lookup extends Command
         $response = OpenAI::chat()->create([
             'model' => 'gpt-3.5-turbo',
             'messages' => $messages,
+            'temperature' => 0,
         ]);
 
         $json = $response->choices[0]->message->content;

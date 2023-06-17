@@ -61,7 +61,7 @@ class TranslationController extends Controller
                         'description' => "An example conversation between 2 persons in {$outputLanguage} using the translation",
                     ],
                 ],
-                'required' => ['translation', 'explanation', 'example'],
+                'required' => ['translation'],
             ],
         ];
     }

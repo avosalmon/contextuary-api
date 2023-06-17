@@ -32,6 +32,8 @@ class StoreTranslationRequest extends FormRequest
             'output_language' => ['required', 'string'],
             'tone' => [new Enum(Tone::class)],
             'audience' => ['string'],
+            'requires_explaination' => ['required', 'boolean'],
+            'requires_example' => ['required', 'boolean'],
         ];
     }
 
@@ -50,8 +52,14 @@ class StoreTranslationRequest extends FormRequest
         $prompt .= $audience ? " and the audience is \"{$audience}\".\n" : ".\n";
         $prompt .= "Provide the following in your response.\n\n";
         $prompt .= "Translation: the translation of the word/phrase in the given context and tone. Make it sound natural to native English speakers rather than just literally translating the input.\n";
-        $prompt .= "Explanation: the explanation of the translation in {$inputLanguage}, touching on the {$outputLanguage} words/phrases used in the translation. Keep any {$outputLanguage} phrases you mention in the explanation in their original {$outputLanguage} form.\n";
-        $prompt .= "Example conversation: an example conversation between 2 persons in {$outputLanguage} using the translation";
+
+        if ($this->boolean('requires_explaination')) {
+            $prompt .= "Explanation: the explanation of the translation in {$inputLanguage}, touching on the {$outputLanguage} words/phrases used in the translation. Keep any {$outputLanguage} phrases you mention in the explanation in their original {$outputLanguage} form.\n";
+        }
+
+        if ($this->boolean('requires_example')) {
+            $prompt .= "Example conversation: an example conversation between 2 persons in {$outputLanguage} using the translation";
+        }
 
         return $prompt;
     }

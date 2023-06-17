@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\DataObjects\ChatMessage;
-use App\DataObjects\TranslationInput;
-use App\Enums\Role;
-use App\Enums\SystemUserName;
 use App\Enums\Tone;
 use App\Http\Requests\TranslationRequest;
-use Illuminate\Support\Collection;
+use App\Http\Resources\Translation;
 use OpenAI\Laravel\Facades\OpenAI;
 
 class TranslationController extends Controller
@@ -22,92 +18,59 @@ class TranslationController extends Controller
         $inputLanguage = $request->input('input_language');
         $outputLanguage = $request->input('output_language');
         /** @var Tone $tone */
-        $tone = $request->enum('tone', Tone::class);
+        $tone = $request->enum('tone', Tone::class) ?? Tone::Neutral;
         $audience = $request->input('audience');
 
-        $messages = $this->composeMessages(
-            $word,
-            $context,
-            $inputLanguage,
-            $outputLanguage,
-            $tone,
-            $audience
-        );
+        $prompt = "Translate the following input: \"{$word}\" in {$outputLanguage}";
+        $prompt .= $context ? ", which is used in this context: \"{$context}\".\n" : ".\n";
+        $prompt .= "The intended tone is \"{$tone->value}\"";
+        $prompt .= $audience ? " and the audience is \"{$audience}\".\n" : ".\n";
+        $prompt .= "Provide the following in your response.\n\n";
+        $prompt .= "Translation: the translation of the word/phrase in the given context and tone. Make it sound natural to native English speakers rather than just literally translating the input.\n";
+        $prompt .= "Explanation: the explanation of the translation in {$inputLanguage}, touching on the {$outputLanguage} words/phrases used in the translation. Keep any {$outputLanguage} phrases you mention in the explanation in their original {$outputLanguage} form.\n";
+        $prompt .= "Example conversation: an example conversation between 2 persons in {$outputLanguage} using the translation";
 
         $response = OpenAI::chat()->create([
-            'model' => 'gpt-4',
-            'messages' => $messages->toArray(),
-            'temperature' => 0,
-            // TODO: 'max_tokens' => 64,
-        ]);
-
-        $json = $response->choices[0]->message->content;
-        $array = json_decode($json, associative: true);
-
-        // Return `Translation` JSON resource
-        return response()->json([
-            'data' => $array,
-        ]);
-    }
-
-    /**
-     * @return Collection<ChatMessage>
-     */
-    private function composeMessages(
-        string $word,
-        ?string $context,
-        string $inputLanguage,
-        string $outputLanguage,
-        Tone $tone,
-        ?string $audience,
-    ): Collection
-    {
-        $input = new TranslationInput(
-            word: $word,
-            context: $context,
-            inputLanguage: $inputLanguage,
-            outputLanguage: $outputLanguage,
-            tone: $tone,
-            audience: $audience,
-        );
-
-        return collect([
-            new ChatMessage(
-                Role::System,
-                "Act as a native speaker of {$inputLanguage} and {$outputLanguage}.
-                Your task is to translate a word/phrase/sentence based on the context, tone, and audience.
-                The context and audience are optional. Ignore them if they are not provided."
-            ),
-            new ChatMessage(
-                Role::User,
-                $input->toPrompt()
-            ),
-            new ChatMessage(
-                Role::User,
-                <<<PROMPT
-                The output should contain 3 options in the following JSON format:
-                ```
+            'model' => 'gpt-4-0613',
+            'messages' => [
+                ['role' => 'user', 'content' => $prompt],
+            ],
+            'functions' => [
                 [
-                    {
-                        "translation": "translation 1",
-                        "explanation": "explanation 1",
-                        "example": "example 1"
-                    },
-                    {
-                        "translation": "translation 2",
-                        "explanation": "explanation 2",
-                        "example": "example 2"
-                    },
-                    {
-                        "translation": "translation 3",
-                        "explanation": "explanation 3",
-                        "example": "example 3"
-                    }
-                ]
-                ```
-                Your response should only contain the JSON object as I will programmatically parse it.
-                PROMPT
-            ),
+                    'name' => 'store_translation',
+                    'description' => 'Store the translation in the database',
+                    'parameters' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'translation' => [
+                                'type' => 'string',
+                                'description' => 'The translation of the word/phrase in the given context and tone',
+                            ],
+                            'explanation' => [
+                                'type' => 'string',
+                                'description' => "The explanation of the translation in {$inputLanguage}",
+                            ],
+                            'example' => [
+                                'type' => 'string',
+                                'description' => "An example conversation between 2 persons in {$outputLanguage} using the translation",
+                            ],
+                        ],
+                        'required' => ['translation', 'explanation', 'example'],
+                    ],
+                ],
+            ],
+            'function_call' => [
+                'name' => 'store_translation',
+            ],
+            'temperature' => 0,
+            // 'max_tokens' => xxx,
         ]);
+
+        $arguments = $response->choices[0]->message->functionCall->arguments;
+        $json = json_decode($arguments, associative: true);
+
+        // TODO: Store the translation in the database
+
+        return new Translation($json);
     }
 }

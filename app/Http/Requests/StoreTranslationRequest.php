@@ -26,26 +26,25 @@ class StoreTranslationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'word' => ['required', 'string'],
+            'input' => ['required', 'string'],
             'context' => ['string'],
             'input_language' => ['required', 'string'],
             'output_language' => ['required', 'string'],
-            'tone' => ['required', new Enum(Tone::class)],
+            'tone' => [new Enum(Tone::class)],
             'audience' => ['string'],
         ];
     }
 
     public function toPrompt(): string
     {
-        $word = $this->input('word');
+        $input = $this->input('input');
         $context = $this->input('context');
         $inputLanguage = $this->input('input_language');
         $outputLanguage = $this->input('output_language');
-        /** @var Tone $tone */
         $tone = $this->enum('tone', Tone::class) ?? Tone::Neutral;
         $audience = $this->input('audience');
 
-        $prompt = "Translate the following input: \"{$word}\" in {$outputLanguage}";
+        $prompt = "Translate the following input: \"{$input}\" in {$outputLanguage}";
         $prompt .= $context ? ", which is used in this context: \"{$context}\".\n" : ".\n";
         $prompt .= "The intended tone is \"{$tone->value}\"";
         $prompt .= $audience ? " and the audience is \"{$audience}\".\n" : ".\n";

@@ -6,7 +6,7 @@ namespace App\Http\Requests;
 
 use App\Enums\Tone;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class TranslationRequest extends FormRequest
 {
@@ -30,7 +30,7 @@ class TranslationRequest extends FormRequest
             'context' => ['string'],
             'input_language' => ['required', 'string'],
             'output_language' => ['required', 'string'],
-            'tone' => ['required', Rule::enum(Tone::class)],
+            'tone' => ['required', new Enum(Tone::class)],
             'audience' => ['string'],
         ];
     }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Enums\Tone;
 use App\Http\Requests\StoreTranslationRequest;
 use App\Http\Resources\Translation;
 use OpenAI\Laravel\Facades\OpenAI;
@@ -24,7 +23,7 @@ class TranslationController extends Controller
                 ['role' => 'user', 'content' => $request->toPrompt()],
             ],
             'functions' => [
-                $this->functionSchema($inputLanguage, $outputLanguage)
+                $this->functionSchema($inputLanguage, $outputLanguage),
             ],
             'function_call' => [
                 'name' => self::FUNCTION_NAME,

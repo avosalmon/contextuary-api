@@ -11,7 +11,7 @@ use OpenAI\Laravel\Facades\OpenAI;
 
 class TranslationController extends Controller
 {
-    public function __invoke(TranslationRequest $request)
+    public function store(TranslationRequest $request)
     {
         $word = $request->input('word');
         $context = $request->input('context');

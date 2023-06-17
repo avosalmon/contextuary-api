@@ -39,7 +39,7 @@ class ChatGPTFunction extends Command
         $prompt .= "The intended tone is \"{$tone}\"";
         $prompt .= $audience ? " and the audience is \"{$audience}\".\n" : ".\n";
         $prompt .= "Provide the following in your response.\n\n";
-        $prompt .= "Translation: the translation of the word/phrase in the given context and tone. Make sure it is natural like a native speaker.\n";
+        $prompt .= "Translation: the translation of the word/phrase in the given context and tone. Make it sound natural to native English speakers rather than just literally translating the input.\n";
         $prompt .= "Explanation: the explanation of the translation in {$inputLanguage}, touching on the {$outputLanguage} words/phrases used in the translation. Keep any {$outputLanguage} phrases you mention in the explanation in their original {$outputLanguage} form.\n";
         $prompt .= "Example conversation: an example conversation between 2 persons in {$outputLanguage} using the translation";
 

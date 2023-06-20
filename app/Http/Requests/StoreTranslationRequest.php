@@ -58,9 +58,48 @@ class StoreTranslationRequest extends FormRequest
         }
 
         if ($this->boolean('requires_example')) {
-            $prompt .= "Example conversation: an example conversation between 2 persons in {$outputLanguage} using the translation";
+            $prompt .= "Example: an example conversation between 2 persons in {$outputLanguage} using the translation";
         }
 
         return $prompt;
+    }
+
+    public function toFunction(): array
+    {
+        $inputLanguage = $this->input('input_language');
+        $outputLanguage = $this->input('output_language');
+
+        $schema = [
+            'name' => 'store_translation',
+            'description' => 'Store the translation in the database',
+            'parameters' => [
+                'type' => 'object',
+                'properties' => [
+                    'translation' => [
+                        'type' => 'string',
+                        'description' => 'The translation of the word/phrase in the given context and tone',
+                    ],
+                ],
+                'required' => ['translation'],
+            ],
+        ];
+
+        if ($this->boolean('requires_explaination')) {
+            $schema['parameters']['properties']['explanation'] = [
+                'type' => 'string',
+                'description' => "The explanation of the translation in {$inputLanguage}",
+            ];
+            $schema['parameters']['required'][] = 'explanation';
+        }
+
+        if ($this->boolean('requires_example')) {
+            $schema['parameters']['properties']['example'] = [
+                'type' => 'string',
+                'description' => "An example conversation between 2 persons in {$outputLanguage} using the translation",
+            ];
+            $schema['parameters']['required'][] = 'example';
+        }
+
+        return $schema;
     }
 }

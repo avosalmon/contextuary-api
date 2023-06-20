@@ -75,7 +75,7 @@ class ChatGPTFunction extends Command
                         ],
                         'required' => ['translation', 'explanation', 'example'],
                     ],
-                ]
+                ],
             ],
             'function_call' => [
                 'name' => 'store_translation',

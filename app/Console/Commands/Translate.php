@@ -87,8 +87,7 @@ class Translate extends Command
         string $outputLanguage,
         Tone $tone,
         ?string $audience,
-    ): Collection
-    {
+    ): Collection {
         $input = new TranslationInput(
             word: $word,
             context: $context,

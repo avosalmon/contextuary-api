@@ -24,7 +24,7 @@ class Translate extends Command
      *
      * @var string
      */
-    protected $description = 'Look up a word/phrase in the given context.';
+    protected $description = 'Translate a word/phrase in the given context.';
 
     /**
      * Execute the console command.
@@ -36,29 +36,43 @@ class Translate extends Command
         $inputLanguage = $this->choice('What is the input language?', ['English', 'Japanese']);
         $outputLanguage = $this->choice('What is the output language?', ['English', 'Japanese']);
         $tone = $this->choice('What is the tone of the voice?', collect(Tone::cases())->map(fn (Tone $tone) => $tone->value)->toArray());
-        $audience = $this->ask('Who is the audience? e.g. friends, family, colleagues, strangers');
+        $audience = $this->ask('Who is the audience? e.g. friend, family, colleague, stranger');
 
-        $messages = $this->composeMessages(
-            $word,
-            $context,
-            $inputLanguage,
-            $outputLanguage,
-            Tone::from($tone),
-            $audience
-        );
+        $messages = collect();
 
-        $stream = OpenAI::chat()->createStreamed([
-            'model' => 'gpt-4',
-            'messages' => $messages,
-            'temperature' => 0,
-        ]);
+        // Provide steps
+        // https://github.com/openai/openai-cookbook/blob/970d8261fbf6206718fe205e88e37f4745f9cf76/techniques_to_improve_reliability.md
+        $prompt = "Translate the following input: \"{$word}\" in {$outputLanguage}";
+        $prompt .= $context ? ", which is used in this context: \"{$context}\".\n" : ".\n";
+        $prompt .= "The intended tone is \"{$tone}\"";
+        $prompt .= $audience ? " and the audience is \"{$audience}\".\n" : ".\n";
 
-        foreach ($stream as $response) {
-            $delta = $response->choices[0]->delta->content ?? '';
-            $this->getOutput()->write($delta);
-        }
+        $messages->push(new ChatMessage(
+            Role::User,
+            $prompt,
+        ));
 
-        $this->newLine();
+        // $messages = $this->composeMessages(
+        //     $word,
+        //     $context,
+        //     $inputLanguage,
+        //     $outputLanguage,
+        //     Tone::from($tone),
+        //     $audience
+        // );
+
+        // $stream = OpenAI::chat()->createStreamed([
+        //     'model' => 'gpt-4',
+        //     'messages' => $messages->toArray(),
+        //     'temperature' => 0,
+        // ]);
+
+        // foreach ($stream as $response) {
+        //     $delta = $response->choices[0]->delta->content ?? '';
+        //     $this->getOutput()->write($delta);
+        // }
+
+        // $this->newLine();
     }
 
     /**
@@ -87,38 +101,39 @@ class Translate extends Command
                 Role::System,
                 "Act as a native speaker of {$inputLanguage} and {$outputLanguage}.
                 Your task is to translate a word/phrase/sentence based on the context, tone, and audience.
-                The context and audience are optional. Ignore them if they are not provided."
+                The context and audience are optional. Ignore them if they are not provided.
+                The output must be a JSON object containing the translation, explanation, and example."
             ),
             new ChatMessage(
                 Role::User,
                 $input->toPrompt()
             ),
-            new ChatMessage(
-                Role::User,
-                <<<PROMPT
-                The output should contain 3 options in the following JSON format:
-                ```
-                [
-                    {
-                        "translation": "translation 1",
-                        "explanation": "explanation 1",
-                        "example": "example 1"
-                    },
-                    {
-                        "translation": "translation 2",
-                        "explanation": "explanation 2",
-                        "example": "example 2"
-                    },
-                    {
-                        "translation": "translation 3",
-                        "explanation": "explanation 3",
-                        "example": "example 3"
-                    }
-                ]
-                ```
-                Your response should only contain the JSON object as I will programmatically parse it.
-                PROMPT
-            ),
+            // new ChatMessage(
+            //     Role::User,
+            //     <<<PROMPT
+            //     The output should contain 3 options in the following JSON format:
+            //     ```
+            //     [
+            //         {
+            //             "translation": "translation 1",
+            //             "explanation": "explanation 1",
+            //             "example": "example 1"
+            //         },
+            //         {
+            //             "translation": "translation 2",
+            //             "explanation": "explanation 2",
+            //             "example": "example 2"
+            //         },
+            //         {
+            //             "translation": "translation 3",
+            //             "explanation": "explanation 3",
+            //             "example": "example 3"
+            //         }
+            //     ]
+            //     ```
+            //     Your response should only contain the JSON object as I will programmatically parse it.
+            //     PROMPT
+            // ),
         ]);
     }
 }

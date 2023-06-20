@@ -15,7 +15,8 @@ readonly class TranslationInput
         public string $outputLanguage,
         public Tone $tone,
         public string $audience
-    ) {}
+    ) {
+    }
 
     public function toPrompt(): string
     {

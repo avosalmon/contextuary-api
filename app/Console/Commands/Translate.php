@@ -71,8 +71,7 @@ class Translate extends Command
         string $outputLanguage,
         Tone $tone,
         ?string $audience,
-    ): Collection
-    {
+    ): Collection {
         $input = new TranslationInput(
             word: $word,
             context: $context,
@@ -95,7 +94,7 @@ class Translate extends Command
             ),
             new ChatMessage(
                 Role::User,
-                <<<PROMPT
+                <<<'PROMPT'
                 The output should contain 3 options in the following JSON format:
                 ```
                 [

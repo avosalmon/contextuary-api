@@ -27,11 +27,9 @@ class StoreTranslationRequest extends FormRequest
     {
         return [
             'input' => ['required', 'string'],
-            'context' => ['string'],
             'input_language' => ['required', 'string'],
             'output_language' => ['required', 'string'],
             'tone' => [new Enum(Tone::class)],
-            'audience' => ['string'],
             'requires_explaination' => ['required', 'boolean'],
             'requires_example' => ['required', 'boolean'],
         ];

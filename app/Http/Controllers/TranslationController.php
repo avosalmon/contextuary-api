@@ -13,7 +13,7 @@ class TranslationController extends Controller
     public function store(StoreTranslationRequest $request): Translation
     {
         $response = OpenAI::chat()->create([
-            'model' => 'gpt-4-0613',
+            'model' => 'gpt-4',
             'messages' => [
                 ['role' => 'user', 'content' => $request->toPrompt()],
             ],
